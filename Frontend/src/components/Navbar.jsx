@@ -34,7 +34,6 @@ const Navbar = () => {
       <nav className="container">
         <div className="logo">
           <img src="/logo.png" alt="logo" className="logo-img" />
-          <p>Designed by Priyansh:)</p>
         </div>
         <div className={show ? "navLinks showmenu" : "navLinks"}>
           <div className="links">
