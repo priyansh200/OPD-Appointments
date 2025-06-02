@@ -9,7 +9,7 @@
     "start": "node ./dist/server.js",
     "build": "tsc",
     "watch": "tsc -w",
-    "dev": "node --watch ./dist/server.js"
+    "dev": "nodemon ./dist/server.js"
   },
   "author": "",
   "license": "ISC",
@@ -18,14 +18,15 @@
     "@types/morgan": "^1.9.9",
     "@types/multer": "^1.4.11",
     "@types/uuid": "^9.0.8",
+    "axios": "^1.9.0",
+    "backend": "file:",
     "body-parser": "^1.20.2",
     "cloudinary": "^2.2.0",
-    "dotenv": "^16.4.5",
+    "dotenv": "^16.5.0",
     "express": "^4.19.2",
     "morgan": "^1.10.0",
-    "multer": "^1.4.5-lts.1",
+    "multer": "^2.0.0",
     "sharp": "^0.33.3",
-    "ts-node": "^10.9.2",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
@@ -41,8 +42,10 @@
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.3.3",
-    "typescript": "^5.4.5",
+    "mongoose": "^8.15.1",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3",
     "validator": "^13.11.0"
   }
 }
