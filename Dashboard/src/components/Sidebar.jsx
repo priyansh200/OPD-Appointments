@@ -15,10 +15,12 @@ const Sidebar = () => {
   const [show, setShow] = useState(false);
 
   const { isAuthenticated, setIsAuthenticated } = useContext(Context);
+  const navigateTo = useNavigate();
 
   const handleLogout = async () => {
-    await axios
-      .get("http://localhost:4000/api/v1/user/admin/logout", {
+         navigateTo("/login");
+    const res =await axios
+      .get("http://localhost:3000/api/v1/user/admin/logout", {
         withCredentials: true,
       })
       .then((res) => {
@@ -28,9 +30,10 @@ const Sidebar = () => {
       .catch((err) => {
         toast.error(err.response.data.message);
       });
+ 
+      
   };
 
-  const navigateTo = useNavigate();
 
   const gotoHomePage = () => {
     navigateTo("/");

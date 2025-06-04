@@ -9,7 +9,7 @@ const Doctors = () => {
     const fetchDoctors = async () => {
       try {
         const { data } = await axios.get(
-          "http://localhost:4000/api/v1/user/doctors",
+          "http://localhost:3000/api/v1/user/doctors",
           { withCredentials: true } // Consider secure auth approach
         );
         setDoctors(data.doctors);

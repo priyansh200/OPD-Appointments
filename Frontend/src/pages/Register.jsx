@@ -29,7 +29,7 @@ const Register = () => {
 
       await axios
         .post(
-          "http://localhost:4000/api/v1/user/patient/register",
+          "http://localhost:3000/api/v1/user/patient/register",
           {
             firstName,
             lastName,
@@ -61,8 +61,12 @@ const Register = () => {
           setConfirmPassword("");
         });
     } catch (error) {
-      toast.error(error.response.data.message);
-    }
+  console.error(error); // for debugging
+  const errorMessage =
+    error?.response?.data?.message || "Registration failed. Please try again.";
+  toast.error(errorMessage);
+}
+
   };
 
   if (isAuthenticated) {

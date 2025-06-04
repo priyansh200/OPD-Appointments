@@ -67,7 +67,7 @@ const AddNewDoctor = () => {
       formData.append("startTime", startTime);
       formData.append("endTime", endTime);
       await axios
-        .post("http://localhost:4000/api/v1/user/doctor/new", formData, {
+        .post("http://localhost:3000/api/v1/user/doctor/new", formData, {
           withCredentials: true,
           headers: { "Content-Type": "multipart/form-data" },
         })

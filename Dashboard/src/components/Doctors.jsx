@@ -11,7 +11,7 @@ const Doctors = () => {
     const fetchDoctors = async () => {
       try {
         const { data } = await axios.get(
-          "http://localhost:4000/api/v1/user/doctors",
+          "http://localhost:3000/api/v1/user/doctors",
           { withCredentials: true }
         );
         setDoctors(data.doctors);
@@ -34,7 +34,7 @@ const Doctors = () => {
           doctors.map((doctor) => (
             <div className="card" key={doctor._id}>
               <img
-                src={`http://localhost:4000/${doctor.photo}`}
+                src={`http://localhost:3000/${doctor.photo}`}
                 alt={`${doctor.firstName} ${doctor.lastName}`}
               />
               {console.log(doctor.firstName)}

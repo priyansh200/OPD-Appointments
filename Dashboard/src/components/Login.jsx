@@ -10,29 +10,33 @@ const Login = () => {
   const { isAuthenticated, setIsAuthenticated } = useContext(Context);
   const navigateTo = useNavigate();
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    try {
-      await axios
-        .post(
-          "http://localhost:4000/api/v1/user/login",
-          { email, password, role: "Admin" },
-          {
-            withCredentials: true,
-            headers: { "Content-Type": "application/json" },
-          }
-        )
-        .then((res) => {
-          toast.success(res.data.message);
-          setIsAuthenticated(true);
-          navigateTo("/");
-          setEmail("");
-          setPassword("");
-        });
-    } catch (error) {
-      toast.error(error.response.data.message);
+const handleLogin = async (e) => {
+  e.preventDefault();
+  try {
+    const res = await axios.post(
+      "http://localhost:3000/api/v1/user/login",
+      { email, password, role: "Admin" },
+      {
+        withCredentials: true,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+
+    if (!res || !res.data) {
+      toast.error("Invalid response from server");
+      return;
     }
-  };
+
+    toast.success(res.data.message);
+    setIsAuthenticated(true);
+    navigateTo("/");
+    setEmail("");
+    setPassword("");
+  } catch (error) {
+    console.error("Login error:", error); // helpful for debugging
+    toast.error(error?.response?.data?.message || "Login failed");
+  }
+};
 
   if (isAuthenticated) {
     return <Navigate to={"/"} />;

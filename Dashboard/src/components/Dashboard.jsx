@@ -12,7 +12,7 @@ const Dashboard = () => {
     const fetchAppointments = async () => {
       try {
         const { data } = await axios.get(
-          "http://localhost:4000/api/v1/appointment/get",
+          "http://localhost:3000/api/v1/appointment/get",
           { withCredentials: true }
         );
         setAppointments(data.appointment); // Changed to data.appointment
@@ -27,7 +27,7 @@ const Dashboard = () => {
     const fetchDoctors = async () => {
       try {
         const { data } = await axios.get(
-          "http://localhost:4000/api/v1/user/doctors",
+          "http://localhost:3000/api/v1/user/doctors",
           { withCredentials: true }
         );
         setDoctors(data.doctors);

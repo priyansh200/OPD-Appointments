@@ -8,7 +8,7 @@ const AppointmentList = () => {
     const fetchAppointments = async () => {
       try {
         const { data } = await axios.get(
-          "http://localhost:4000/api/v1/appointment/getPatientAppointments",
+          "http://localhost:3000/api/v1/appointment/getPatientAppointments",
           {
             withCredentials: true,
           }

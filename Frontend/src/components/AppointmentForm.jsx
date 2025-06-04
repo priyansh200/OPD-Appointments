@@ -10,15 +10,14 @@ const AppointmentForm = () => {
   const [phone, setPhone] = useState("");
   const [dob, setDob] = useState("");
   const [gender, setGender] = useState("");
-  const [department, setDepartment] = useState("Pediatrics");
-  const [doctorFirstName, setDoctorFirstName] = useState("");
-  const [doctorLastName, setDoctorLastName] = useState("");
+  const [department, setDepartment] = useState("");
+  const [doctorId, setDoctorId] = useState("");
   const [address, setAddress] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
   const [availableDates, setAvailableDates] = useState([]);
   const [timeSlots, setTimeSlots] = useState([]);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
-  const [hasVisited, setHasVisited] = useState(false); // Define hasVisited state
+  const [hasVisited, setHasVisited] = useState(false);
 
   const departmentsArray = [
     "Pediatrics",
@@ -39,10 +38,8 @@ const AppointmentForm = () => {
     const fetchDoctors = async () => {
       try {
         const { data } = await axios.get(
-          "http://localhost:4000/api/v1/user/doctors",
-          {
-            withCredentials: true,
-          }
+          "http://localhost:3000/api/v1/user/doctors",
+          { withCredentials: true }
         );
         setDoctors(data.doctors);
       } catch (error) {
@@ -52,17 +49,11 @@ const AppointmentForm = () => {
     fetchDoctors();
   }, []);
 
+  // Generate available dates when doctor is selected
   useEffect(() => {
-    if (doctorFirstName && doctorLastName) {
-      const selectedDoctor = doctors.find(
-        (doctor) =>
-          doctor.firstName === doctorFirstName &&
-          doctor.lastName === doctorLastName &&
-          doctor.doctorDepartment === department
-      );
-
+    if (doctorId) {
+      const selectedDoctor = doctors.find((doc) => doc._id === doctorId);
       if (selectedDoctor) {
-        // Generate available dates based on working days
         const workingDays = selectedDoctor.workingDays.split(",");
         const today = new Date();
         const futureDates = [];
@@ -70,10 +61,8 @@ const AppointmentForm = () => {
         for (let i = 0; i < 30; i++) {
           const date = new Date(today);
           date.setDate(today.getDate() + i);
-          const dayOfWeek = date.toLocaleDateString("en-US", {
-            weekday: "long",
-          });
-          if (workingDays.includes(dayOfWeek)) {
+          const day = date.toLocaleDateString("en-US", { weekday: "long" });
+          if (workingDays.includes(day)) {
             futureDates.push({
               date: date.toISOString().split("T")[0],
               status: "available",
@@ -83,48 +72,40 @@ const AppointmentForm = () => {
         setAvailableDates(futureDates);
       }
     }
-  }, [doctorFirstName, doctorLastName, department, doctors]);
+  }, [doctorId, doctors]);
 
+  // Generate time slots
   useEffect(() => {
-    if (doctorFirstName && doctorLastName && selectedDate) {
-      const selectedDoctor = doctors.find(
-        (doctor) =>
-          doctor.firstName === doctorFirstName &&
-          doctor.lastName === doctorLastName &&
-          doctor.doctorDepartment === department
-      );
-
+    if (doctorId && selectedDate) {
+      const selectedDoctor = doctors.find((doc) => doc._id === doctorId);
       if (selectedDoctor) {
-        // Generate available time slots based on working hours
-        const startTime = selectedDoctor.startTime;
-        const endTime = selectedDoctor.endTime;
-        const timeSlots = [];
-        const start = new Date(`${selectedDate}T${startTime}`);
-        const end = new Date(`${selectedDate}T${endTime}`);
+        const start = new Date(`${selectedDate}T${selectedDoctor.startTime}`);
+        const end = new Date(`${selectedDate}T${selectedDoctor.endTime}`);
+        const slots = [];
 
         while (start < end) {
-          timeSlots.push({
+          slots.push({
             time: start.toTimeString().split(" ")[0],
             status: "available",
           });
           start.setMinutes(start.getMinutes() + 30);
         }
-        setTimeSlots(timeSlots);
+        setTimeSlots(slots);
       }
     }
-  }, [doctorFirstName, doctorLastName, selectedDate, department, doctors]);
+  }, [doctorId, selectedDate, doctors]);
 
   const handleAppointment = async (e) => {
     e.preventDefault();
-    if (!selectedDate || !selectedTimeSlot) {
-      toast.error("Please select a date and time slot!");
+    if (!selectedDate || !selectedTimeSlot || !doctorId) {
+      toast.error("Please fill all required fields!");
       return;
     }
 
     try {
-      const hasVisitedBool = Boolean(hasVisited);
-      const { data } = await axios.post(
-        "http://localhost:4000/api/v1/appointment/post",
+      const selectedDoctor = doctors.find((doc) => doc._id === doctorId);
+      const response = await axios.post(
+        "http://localhost:3000/api/v1/appointment/post",
         {
           firstName,
           lastName,
@@ -135,9 +116,9 @@ const AppointmentForm = () => {
           appointment_date: selectedDate,
           appointment_time: selectedTimeSlot,
           department,
-          doctor_firstName: doctorFirstName,
-          doctor_lastName: doctorLastName,
-          hasVisited: hasVisitedBool,
+          doctor_firstName: selectedDoctor.firstName,
+          doctor_lastName: selectedDoctor.lastName,
+          hasVisited: Boolean(hasVisited),
           address,
         },
         {
@@ -145,10 +126,26 @@ const AppointmentForm = () => {
           headers: { "Content-Type": "application/json" },
         }
       );
-      toast.success(data.message);
+      toast.success(response.data.message);
       navigateTo("/");
+
+      // Reset form
+      setFirstName("");
+      setLastName("");
+      setEmail("");
+      setPhone("");
+      setDob("");
+      setGender("");
+      setDepartment("");
+      setDoctorId("");
+      setAddress("");
+      setSelectedDate("");
+      setTimeSlots([]);
+      setAvailableDates([]);
+      setSelectedTimeSlot("");
+      setHasVisited(false);
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Something went wrong");
     }
   };
 
@@ -157,40 +154,15 @@ const AppointmentForm = () => {
       <h2>Appointment</h2>
       <form onSubmit={handleAppointment}>
         <div>
-          <input
-            type="text"
-            placeholder="First Name"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-          />
-          <input
-            type="text"
-            placeholder="Last Name"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-          />
+          <input type="text" placeholder="First Name" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+          <input type="text" placeholder="Last Name" value={lastName} onChange={(e) => setLastName(e.target.value)} />
         </div>
         <div>
-          <input
-            type="text"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <input
-            type="number"
-            placeholder="Mobile Number"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-          />
+          <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <input type="tel" placeholder="Mobile Number" value={phone} onChange={(e) => setPhone(e.target.value)} />
         </div>
         <div>
-          <input
-            type="date"
-            placeholder="Date of Birth"
-            value={dob}
-            onChange={(e) => setDob(e.target.value)}
-          />
+          <input type="date" placeholder="DOB" value={dob} onChange={(e) => setDob(e.target.value)} />
           <select value={gender} onChange={(e) => setGender(e.target.value)}>
             <option value="">Select Gender</option>
             <option value="Male">Male</option>
@@ -201,37 +173,33 @@ const AppointmentForm = () => {
           <select
             value={department}
             onChange={(e) => {
-              const selectedDepartment = e.target.value;
-              setDepartment(selectedDepartment);
-              setDoctorFirstName("");
-              setDoctorLastName("");
+              setDepartment(e.target.value);
+              setDoctorId("");
+              setSelectedDate("");
+              setSelectedTimeSlot("");
             }}
           >
             <option value="">Select Department</option>
-            {departmentsArray.map((depart, index) => (
-              <option value={depart} key={index}>
-                {depart}
-              </option>
+            {departmentsArray.map((dept, i) => (
+              <option value={dept} key={i}>{dept}</option>
             ))}
           </select>
+
           <select
-            value={`${doctorFirstName} ${doctorLastName}`}
+            value={doctorId}
             onChange={(e) => {
-              const [firstName, lastName] = e.target.value.split(" ");
-              setDoctorFirstName(firstName);
-              setDoctorLastName(lastName);
+              setDoctorId(e.target.value);
+              setSelectedDate("");
+              setSelectedTimeSlot("");
             }}
             disabled={!department}
           >
             <option value="">Select Doctor</option>
             {doctors
-              .filter((doctor) => doctor.doctorDepartment === department)
-              .map((doctor) => (
-                <option
-                  value={`${doctor.firstName} ${doctor.lastName}`}
-                  key={doctor._id} // Assuming there's an _id field in the doctor object
-                >
-                  {doctor.firstName} {doctor.lastName}
+              .filter((doc) => doc.doctorDepartment === department)
+              .map((doc) => (
+                <option value={doc._id} key={doc._id}>
+                  {doc.firstName} {doc.lastName}
                 </option>
               ))}
           </select>
@@ -241,11 +209,12 @@ const AppointmentForm = () => {
           <select
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
+            disabled={!doctorId}
           >
             <option value="">Select Date</option>
-            {availableDates.map((date, index) => (
-              <option value={date.date} key={index}>
-                {new Date(date.date).toLocaleDateString()}
+            {availableDates.map((d, i) => (
+              <option value={d.date} key={i}>
+                {new Date(d.date).toLocaleDateString()}
               </option>
             ))}
           </select>
@@ -255,23 +224,35 @@ const AppointmentForm = () => {
           <select
             value={selectedTimeSlot}
             onChange={(e) => setSelectedTimeSlot(e.target.value)}
+            disabled={!selectedDate}
           >
             <option value="">Select Time Slot</option>
-            {timeSlots.map((slot, index) => (
-              <option value={slot.time} key={index}>
+            {timeSlots.map((slot, i) => (
+              <option value={slot.time} key={i}>
                 {slot.time}
               </option>
             ))}
           </select>
         </div>
         <textarea
-          rows="10"
+          rows="4"
+          placeholder="Address"
           value={address}
           onChange={(e) => setAddress(e.target.value)}
-          placeholder="Address"
         />
-
-        <button style={{ margin: "0 auto" }}>GET APPOINTMENT</button>
+        <div>
+          <label>
+            <input
+              type="checkbox"
+              checked={hasVisited}
+              onChange={(e) => setHasVisited(e.target.checked)}
+            />
+            Visited Before
+          </label>
+        </div>
+        <button type="submit" style={{ marginTop: "10px" }}>
+          Get Appointment
+        </button>
       </form>
     </div>
   );

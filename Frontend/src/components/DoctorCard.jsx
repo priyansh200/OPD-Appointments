@@ -4,7 +4,7 @@ import axios from "axios";
 const DoctorCard = ({ doctor }) => (
   <div className="doctor-card">
     <img
-      src={`http://localhost:4000/${doctor.photo}`}
+      src={`http://localhost:3000/${doctor.photo}`}
       alt={`${doctor.firstName} ${doctor.lastName}`}
       className="doctor-photo"
     />
