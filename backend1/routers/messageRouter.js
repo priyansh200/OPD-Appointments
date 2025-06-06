@@ -3,5 +3,5 @@ import { getAllMessage, sendMessage, } from "../controllers/messageController.js
 import { isAdminAuth } from "../middlewares/auth.js";
 const router = express.Router();
 router.post("/send", sendMessage);
-router.get("/all",  getAllMessage);
+router.get("/all",isAdminAuth,  getAllMessage);
 export default router;

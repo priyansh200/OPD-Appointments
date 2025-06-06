@@ -1,6 +1,5 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-import React from "react";
 
 const Biography = ({ imageUrl }) => {
   return (
@@ -21,7 +20,7 @@ const Biography = ({ imageUrl }) => {
             experienced professionals work together to offer a seamless and
             supportive healthcare experience.
           </p>
-          <p>We are all in 2024!</p>
+          <p>We are all in 2025!</p>
           <p>We are working on a MERN STACK PROJECT.</p>
           <p>
             At OPD Window, we strive to innovate and improve our services

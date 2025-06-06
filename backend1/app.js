@@ -1,25 +1,25 @@
+import cookieParser from "cookie-parser";
+import cors from "cors";
 import { config } from "dotenv";
 import express from "express";
-import cors from "cors";
-import cookieParser from "cookie-parser";
-import { dbConnection } from "./database/dbConnection.js";
 import morgan from "morgan";
+import { dbConnection } from "./database/dbConnection.js";
 import { errorMiddleware } from "./middlewares/error.js";
-import messageRouter from "./routers/messageRouter.js";
-import userRouter from "./routers/userRouter.js";
 import appointmentRouter from "./routers/appointmentRouter.js";
-import productRouter from "./routers/productRouter.js";
+import messageRouter from "./routers/messageRouter.js";
 import orderRouter from "./routers/orderRoutes.js";
+import productRouter from "./routers/productRouter.js";
+import userRouter from "./routers/userRouter.js";
 config({
     path: "./config/.env",
 });
 const app = express();
 
-
 app.use(cors({
-  origin: "http://localhost:5174",  origin: "http://localhost:5173",// ya "*", but better to be specific in production
-  credentials: true // if you're sending cookies
+  origin: ["http://localhost:5173", "http://localhost:5174"],
+  credentials: true
 }));
+
 
 app.use(cookieParser());
 app.use(express.json());
